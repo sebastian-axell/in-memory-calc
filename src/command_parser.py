@@ -4,7 +4,7 @@ import textwrap
 import logging
 import re
 
-from .calculator import Calculator, CalculatorException
+from .calculator import Calculator, CalculatorException, value_is_numeric
 
 logging.basicConfig(level=logging.INFO)
 from typing import Sequence
@@ -17,18 +17,25 @@ class CommandException(Exception):
 def valid_register_name(input_string):
     return bool(re.match(r'^[a-zA-Z0-9]+$', input_string))
 
+
+
 class CommandParser:
     """A class used to parse and execute user commands."""
 
     def __init__(self, calculator: Calculator):
-        self.calulator = calculator
+        self.calculator = calculator
+        self.allowed_operations = ["add", "subtract","multiply", "print"]
 
-    def parse_command(self, command):
+    def parse_and_validate_command(self, command):
         try:
             register, operation, value = command
             if not valid_register_name(register):
                 raise CommandException("A register name can only consist of alphanumeric characters.")
-            self.calulator.add_operation(register, operation, value)
+            if not (value_is_numeric(value) or valid_register_name(value)):
+                raise CommandException(f"{value} is an invalid value: has to be alphanumeric or a numeric")
+            if operation.lower() not in self.allowed_operations:
+                raise CommandException(f"Invalid operation. Valid operations are: {self.allowed_operations}")
+            self.calculator.add_operation(register, operation, value)
         except ValueError as e:
             raise CommandException("Please enter a valid command, type HELP for a list of "
             "available commands")
@@ -49,16 +56,16 @@ class CommandParser:
             if len(command) != 2:
                 raise CommandException("Please enter print command followed by a register.")
             try:
-                self.calulator.add_print_operation(command[1])
+                self.calculator.add_print_operation(command[1])
             except CalculatorException as e:
                 raise CommandException(e.args[0])
         elif operation == "quit":
-            self.calulator.evaluate_stack()
+            self.calculator.evaluate_stack()
             return_code = 0
         elif operation == "help":
             self._get_help()
         else:
-            self.parse_command(command)
+            self.parse_and_validate_command(command)
         return return_code
 
     def _get_help(self):
