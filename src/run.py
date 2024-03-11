@@ -28,7 +28,10 @@ def file_based_application(file):
         command = command.strip()
         if command.lower() == "quit":
             break
-        parser.execute_command(command.split())
+        try:
+            parser.execute_command(command.split())
+        except CommandException as e:
+            print(e)
 
 if __name__ == "__main__":
     if len(sys.argv) == 1:
