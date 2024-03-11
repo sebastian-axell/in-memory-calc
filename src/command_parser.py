@@ -46,7 +46,6 @@ class CommandParser:
         """Executes the user command. Expects the command to be upper case.
            Raises CommandException if a command cannot be parsed.
         """
-        return_code = None
         if not command:
             raise CommandException(
                 "Please enter a valid command, "
@@ -57,16 +56,13 @@ class CommandParser:
                 raise CommandException("Please enter print command followed by a register.")
             try:
                 self.calculator.add_print_operation(command[1])
+                self.calculator.evaluate_stack()
             except CalculatorException as e:
                 raise CommandException(e.args[0])
-        elif operation == "quit":
-            self.calculator.evaluate_stack()
-            return_code = 0
         elif operation == "help":
             self._get_help()
         else:
             self.parse_and_validate_command(command)
-        return return_code
 
     def _get_help(self):
         """Displays all available commands to the user."""

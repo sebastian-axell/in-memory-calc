@@ -77,6 +77,7 @@ class Calculator:
                     print(f"When trying to evaluate the value of register {operation.register} the following error occured: {e.args[0]}")
             else:
                 self.add_register_operation(operation)
+        self.stack=[]
 
     def add_register_operation(self, operation):
         if operation.register in self:
