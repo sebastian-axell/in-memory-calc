@@ -1,1 +1,62 @@
-# sectra_programming_assignment
+# Sectra Programming Assignment
+#### By Sebastian Axell
+
+## Overview
+This calculator application can run in two ways: 
+- with file input
+- without file input
+
+When run with no input, an interactive commandline application is run. 
+The following commands are implemented:
+* _register_ _add_ _value_ - Adds specified value to the given register.
+* _register_ _subtract_ _value_ - Subtract the specified value from the given register.
+* _register_ _multiply_ _value_ - Multiplies the specified register value with the given value.
+* print _register_ - Prints the given registers value.
+* HELP - Displays help.
+* QUIT - Terminates the program execution
+
+No assumptions regarding number type is made:
+both floats and integers are acceptable (mixed input will result in float result).
+
+When there is file input, it is assumed it is in the same directory as that containing
+the src module.
+
+Care has been made to make methods, variables and classes as mnemonic as possible.
+The code has also been commented throughout.
+
+Invalid inputs are not evaluated but printed to the console.
+
+The inputs are validated according to these rules:
+- Has to be of this form: _register_ _operation_ _value_
+- A _register_ name can only consist of alphanumeric characters.")
+- A _value_: has to be alphanumeric or a numeric 
+- Valid operations are: "add", "subtract","multiply", "print"
+
+Exception handling is added throughout.
+
+All inputs are case-insensitive.
+
+No non-standard libraries are used.
+
+The test cases given in the assignments are used in testing but
+no further tests has been written.
+
+## How to run
+Navigate to the directory containing the src module.
+
+### With file input
+`python -m src.run FILE_NAME`
+
+Examples
+`python -m src.run FILE_NAME`
+
+`python -m src.run FILE_NAME`
+
+`python -m src.run FILE_NAME`
+
+Note the file is assumed to be in the same directory as that containing 
+the src module.
+
+### Without file input
+
+`python -m src.run`

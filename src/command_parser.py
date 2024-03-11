@@ -15,9 +15,8 @@ class CommandException(Exception):
     pass
 
 def valid_register_name(input_string):
+    """Checks if the register name is alphanumeric"""
     return bool(re.match(r'^[a-zA-Z0-9]+$', input_string))
-
-
 
 class CommandParser:
     """A class used to parse and execute user commands."""
@@ -27,6 +26,7 @@ class CommandParser:
         self.allowed_operations = ["add", "subtract","multiply", "print"]
 
     def parse_and_validate_command(self, command):
+        """Validates and parses a given command"""
         try:
             register, operation, value = command
             if not valid_register_name(register):
@@ -43,9 +43,7 @@ class CommandParser:
             raise CommandException(e.args[0])
 
     def execute_command(self, command: Sequence[str]):
-        """Executes the user command. Expects the command to be upper case.
-           Raises CommandException if a command cannot be parsed.
-        """
+        """Parses and executes command if valid"""
         if not command:
             raise CommandException(
                 "Please enter a valid command, "
@@ -65,7 +63,7 @@ class CommandParser:
             self.parse_and_validate_command(command)
 
     def _get_help(self):
-        """Displays all available commands to the user."""
+        """Displays all the implemented commands."""
         help_text = textwrap.dedent("""
         Calculator commands need to be in <register> <operation> <value> format. Available commands:
             <register> <add> <value> - Adds specified value to the given register.

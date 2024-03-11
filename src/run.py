@@ -1,4 +1,4 @@
-"""A calculator in the terminal."""
+"""A calculator in the terminal or file-based."""
 import sys
 
 from .calculator import Calculator
@@ -24,7 +24,7 @@ def command_line_application():
 def file_based_application(file):
     calculator = Calculator()
     parser = CommandParser(calculator)
-    for command in f.readlines():
+    for command in file.readlines():
         command = command.strip()
         if command.lower() == "quit":
             break
