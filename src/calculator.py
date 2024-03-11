@@ -71,8 +71,8 @@ class Calculator:
                     register = operation.register
                     if register not in self:
                         raise CalculatorException(f"The value of register {register} cannot be resolved.")
-                    self.evaluate_register(operation.register, self[operation.register])
-                    print(self[operation.register])
+                    self.evaluate_register(register, self[register])
+                    print(self[register][0])
                 except CalculatorException as e:
                     print(f"When trying to evaluate the value of register {operation.register} the following error occured: {e.args[0]}")
             else:

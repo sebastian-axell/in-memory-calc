@@ -5,7 +5,7 @@ from .command_parser import CommandParser
 
 
 if __name__ == "__main__":
-    print("""Hello and welcome to this Sectra Calculator, what would you like to do?
+    print("""Hello and welcome to this Sectra Calculator.
     Enter HELP for list of available commands or quit to terminate.""")
     calculator = Calculator()
     parser = CommandParser(calculator)
