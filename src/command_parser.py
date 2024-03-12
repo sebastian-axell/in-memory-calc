@@ -71,6 +71,8 @@ class CommandParser:
             <register> <multiply> <value> - Multiplies the specified register value with the given value.
         Other commands:
             print <register> - Prints the given registers value.
+            show <register> - Shows added operations for a given registry
+            list - Shows all the registry values or their store of operations
             HELP - Displays help.
             QUIT - Terminates the program execution.
         """)

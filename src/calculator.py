@@ -30,7 +30,7 @@ class Calculator:
         self.registers: dict[str, list[Operation]] = dict()
 
     def __contains__(self, register: str):
-        """Check whether the given register has been seen before. Enables us to do if REGISTRY in self."""
+        """Checks whether the given register has been seen before. Enables us to do if REGISTRY in self."""
         return register.lower() in self.registers.keys()
 
     def __getitem__(self, register: str):
@@ -38,7 +38,7 @@ class Calculator:
         return self.registers[register.lower()]
 
     def __setitem__(self, register, value):
-        """sets the register store for a given register to value. Enables us to do self[registry]=value"""
+        """Sets the register store for a given register to value. Enables us to do self[registry]=valuea"""
         self.registers[register.lower()] = value
 
     def add_operation(self, register, operation: str, value):
@@ -49,8 +49,14 @@ class Calculator:
         """Adds a print operation of the given register to the stack"""
         self.add_operation(register, "print", "0")
 
-    def evaluate_register(self, register, list_of_operations, register_value=None):
+    def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None):
         """Evaluates the given register"""
+        # this is different
+        if seen_registers is None:
+            seen_registers = set()
+        print("evaluting", register)
+        seen_registers.add(register.lower())
+        [print(x) for x in list_of_operations]
         for operation in list_of_operations:
             if not isinstance(operation, Operation):
                 # if the value is not an operation, it is a numeric value which defines the starting value for the
@@ -64,13 +70,31 @@ class Calculator:
             another_register = value  # if it is not numeric-> has to be another register
             if another_register not in self:
                 raise CalculatorException(f"The value of register {another_register} cannot be resolved.")
+            if another_register in seen_registers:
+                print("seen_registers", seen_registers)
+                #if the register does not have a previously numeric value
+                # continue digging but store the multiple of the register
+                #we evaluate the register at each point -> use the latest value
+                if not register_value:
+                    skipped_operation = self[register].pop(0)
+                    try:
+                        return (self.evaluate_register(register, self[register]), print("switch"), self.evaluate_register(register,[Operation(register, operation, another_register)], self[register][0]))
+                    except CalculatorException as e:
+                        self[register] = [skipped_operation] + self[register]
+                        print(self[register])
+                register_value = self.update_register_value(operation, register_value, register_value)
+                continue
             self.evaluate_register(another_register, self[another_register])
             register_value = self.update_register_value(operation, register_value, self[another_register][0])
+        if register_value is None:
+            raise CalculatorException(f"The value of register {register} cannot be resolved.")
         self[register] = [register_value]
+        print(register, self[register])
 
     def update_register_value(self, operation, register_value, value):
         """Updates the given registry value based on the given operation and value"""
-        value = convert_string_value_to_number(value)
+        if isinstance(value, str):
+            value = convert_string_value_to_number(value)
         operations = {
             "add": lambda x, y: x + y if x is not None else y,
             "subtract": lambda x, y: x - y if x is not None else -y,
