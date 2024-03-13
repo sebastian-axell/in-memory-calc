@@ -51,17 +51,15 @@ class Calculator:
 
     def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None):
         """Evaluates the given register"""
-        # this is different
-        if seen_registers is None:
-            seen_registers = set()
-        print("evaluting", register)
+        print(seen_registers)
         seen_registers.add(register.lower())
+        print("evaluting", register)
         [print(x) for x in list_of_operations]
         for operation in list_of_operations:
             if not isinstance(operation, Operation):
                 # if the value is not an operation, it is a numeric value which defines the starting value for the
                 # subsequent evaluations
-                return self.evaluate_register(register, self[register][1:], operation)
+                return self.evaluate_register(register, self[register][1:], operation, seen_registers=seen_registers)
             value = operation.value
             operation = operation.operation
             if value_is_numeric(value):
@@ -70,22 +68,37 @@ class Calculator:
             another_register = value  # if it is not numeric-> has to be another register
             if another_register not in self:
                 raise CalculatorException(f"The value of register {another_register} cannot be resolved.")
-            if another_register in seen_registers:
+            # if another_register in seen_registers:
+            if another_register == register or another_register in seen_registers:
                 print("seen_registers", seen_registers)
-                #if the register does not have a previously numeric value
-                # continue digging but store the multiple of the register
-                #we evaluate the register at each point -> use the latest value
+                print(self[another_register][0])
+                if isinstance(self[another_register][0], (int,float)):
+                    print("should bepk")
+                    register_value = self.update_register_value(operation, register_value, self[another_register][0])
+                    continue
                 if not register_value:
                     skipped_operation = self[register].pop(0)
+                    # print(skipped_operation)
+                    # print(Operation(register, operation, another_register))
                     try:
-                        return (self.evaluate_register(register, self[register]), print("switch"), self.evaluate_register(register,[Operation(register, operation, another_register)], self[register][0]))
+                        return (self.evaluate_register(register, self[register], seen_registers=seen_registers), print("switch"), self.evaluate_register(register,[Operation(register, operation, another_register)], self[register][0], seen_registers=seen_registers))
                     except CalculatorException as e:
                         self[register] = [skipped_operation] + self[register]
                         print(self[register])
-                register_value = self.update_register_value(operation, register_value, register_value)
-                continue
-            self.evaluate_register(another_register, self[another_register])
-            register_value = self.update_register_value(operation, register_value, self[another_register][0])
+                        continue
+                if another_register == register and register_value:
+                    print("Ok", register,  register_value)
+                    register_value = self.update_register_value(operation, register_value, register_value)
+                    continue
+            try:
+                print("here", register)
+                self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers)
+                print("updating", register, register_value, "with", another_register, self[another_register][0])
+                register_value = self.update_register_value(operation, register_value, self[another_register][0])
+            except CalculatorException as e:
+                print("could not find", another_register)
+                return self.evaluate_register(register, self[register],register_value, seen_registers=seen_registers)
+        print("end of")
         if register_value is None:
             raise CalculatorException(f"The value of register {register} cannot be resolved.")
         self[register] = [register_value]
@@ -110,8 +123,9 @@ class Calculator:
                     register = operation.register
                     if register not in self:
                         raise CalculatorException(f"The value of register {register} cannot be resolved.")
-                    self.evaluate_register(register, self[register])
+                    self.evaluate_register(register, self[register], seen_registers=set())
                     print(self[register][0])
+                    print(self.registers)
                 except CalculatorException as e:
                     print(
                         f"When trying to evaluate the value of register {operation.register} the following error occured: {e.args[0]}")
