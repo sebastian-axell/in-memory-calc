@@ -23,6 +23,18 @@ def convert_string_value_to_number(value):
         return float(value)
 
 
+def update_register_value(operation, register_value, value):
+    """Updates the given registry value based on the given operation and value"""
+    if isinstance(value, str):
+        value = convert_string_value_to_number(value)
+    operations = {
+        "add": lambda x, y: x + y if x is not None else y,
+        "subtract": lambda x, y: x - y if x is not None else -y,
+        "multiply": lambda x, y: x * y if x is not None else None
+    }
+    return operations[operation](register_value, value)
+
+
 class Calculator:
     """A class to represent a calculator"""
 
@@ -50,85 +62,64 @@ class Calculator:
         """Adds a print operation of the given register to the stack"""
         self.add_operation(register, "print", "0")
 
-    def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None, root_element: ExecutionTree=None):
+    def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None,
+                          root_element: ExecutionTree = None):
         """Evaluates the given register"""
         seen_registers.add(register.lower())
-        print("evaluting", register)
-        print(seen_registers)
         for operation in list_of_operations:
             child = ExecutionTree(operation)
             root_element.add_child(child)
-            print(operation)
-            if not isinstance(operation, Operation):
-                # if the value is not an operation, it is a numeric value which defines the starting value for the
-                # subsequent evaluations
+            if not isinstance(operation, Operation): # case A
                 return self.evaluate_register(register, self[register][1:], operation, seen_registers=seen_registers)
             value = operation.value
             operation = operation.operation
-            if value_is_numeric(value):
-                register_value = self.update_register_value(operation, register_value, value)
+            if value_is_numeric(value): # case B
+                register_value = update_register_value(operation, register_value, value)
                 continue
             another_register = value  # if it is not numeric-> has to be another register
-            if another_register not in self:
+            if another_register not in self: # case C
                 raise CalculatorException(f"The value of register {another_register} cannot be resolved.")
-            if another_register in seen_registers:
-                print("seen_registers", seen_registers)
-                if isinstance(self[another_register][0], (int,float)): # has it been determined intermediately
-                    print("should bepk")
-                    if isinstance(self[register][0], (int,float)): # and the current register as well
-                        register_value = self.update_register_value(operation, self[register][0], self[another_register][0])
+            if another_register in seen_registers: # case D
+                if isinstance(self[another_register][0], (int, float)):  # has it been determined intermediately
+                    if isinstance(self[register][0], (int, float)):
+                        register_value = update_register_value(operation, self[register][0],
+                                                                    self[another_register][0])
                     else:
-                        register_value = self.update_register_value(operation, register_value, self[another_register][0])
+                        register_value = update_register_value(operation, register_value,
+                                                                    self[another_register][0])
                     self[register] = [register_value]
-                    return
-                print("made it here")
-                if not register_value:
-                    print("and here")
+                    continue
+                if not register_value: # case E
                     skipped_operation = self[register].pop(0)
                     try:
                         root_element.add_parent_info(child, "No values found.")
                         root_element.delete_child(child)
-                        self.evaluate_register(register, self[register], seen_registers=seen_registers, root_element=root_element)
-                        print("switch ->", skipped_operation)
-                        self.evaluate_register(register,[skipped_operation], self[register][0], seen_registers=seen_registers, root_element=root_element)
+                        self.evaluate_register(register, self[register], seen_registers=seen_registers,
+                                               root_element=root_element)
+                        self.evaluate_register(register, [skipped_operation], self[register][0],
+                                               seen_registers=seen_registers,
+                                               root_element=root_element)
                         root_element.add_info("Re-evaluated.")
                         return
                     except CalculatorException as e:
                         seen_registers.remove(another_register)
                         self[register] = [skipped_operation] + self[register]
-                        print(self[register])
                         child.mark_as_dead_end()
                         continue
-            if another_register == register and register_value:
-                print("Ok", register,  register_value)
-                register_value = self.update_register_value(operation, register_value, register_value)
+            if another_register == register and register_value: # case F
+                register_value = update_register_value(operation, register_value, register_value)
                 continue
             try:
-                print("here", register)
-                self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers, root_element=child)
-                # if self[register][0] == register_value:
-                print("updating", register, register_value, "with", another_register, self[another_register][0])
-                register_value = self.update_register_value(operation, register_value, self[another_register][0])
+                self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers,
+                                       root_element=child) # case G
+                register_value = update_register_value(operation, register_value, self[another_register][0])
             except CalculatorException as e:
-                print("could not find", another_register)
                 child.mark_as_dead_end()
-                return self.evaluate_register(register, self[register],register_value, seen_registers=seen_registers, root_element=root_element)
-        print("end of")
+                return self.evaluate_register(register, self[register], register_value, seen_registers=seen_registers,
+                                              root_element=root_element) # case H
         if register_value is None:
             raise CalculatorException(f"The value of register {register} cannot be resolved.")
         self[register] = [register_value]
-        print(register, self[register])
-
-    def update_register_value(self, operation, register_value, value):
-        """Updates the given registry value based on the given operation and value"""
-        if isinstance(value, str):
-            value = convert_string_value_to_number(value)
-        operations = {
-            "add": lambda x, y: x + y if x is not None else y,
-            "subtract": lambda x, y: x - y if x is not None else -y,
-            "multiply": lambda x, y: x * y if x is not None else None
-        }
-        return operations[operation](register_value, value)
 
     def evaluate_stack(self, root_element):
         """Evaluates all the operations in the stuck this far, updates the registers and resets the stack"""

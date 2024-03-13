@@ -29,7 +29,7 @@ class ExecutionTree:
         print(f"{prefix}{connector}{self.value} {'(Dead End)' if self.is_dead_end else ''}")
 
         # Print info line if available
-        if self.info and depth > 0:
+        if self.info and depth > 1:
             print(f"{prefix}   Note: {self.info}")
 
         for i, child in enumerate(self.children):
