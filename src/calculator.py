@@ -56,6 +56,8 @@ class Calculator:
         print("evaluting", register)
         print(seen_registers)
         for operation in list_of_operations:
+            child = ExecutionTree(operation)
+            root_element.add_child(child)
             print(operation)
             if not isinstance(operation, Operation):
                 # if the value is not an operation, it is a numeric value which defines the starting value for the
@@ -84,14 +86,18 @@ class Calculator:
                     print("and here")
                     skipped_operation = self[register].pop(0)
                     try:
-                        self.evaluate_register(register, self[register], seen_registers=seen_registers)
+                        root_element.add_parent_info(child, "No values found.")
+                        root_element.delete_child(child)
+                        self.evaluate_register(register, self[register], seen_registers=seen_registers, root_element=root_element)
                         print("switch ->", skipped_operation)
-                        self.evaluate_register(register,[skipped_operation], self[register][0], seen_registers=seen_registers)
+                        self.evaluate_register(register,[skipped_operation], self[register][0], seen_registers=seen_registers, root_element=root_element)
+                        root_element.add_info("Re-evaluated.")
                         return
                     except CalculatorException as e:
                         seen_registers.remove(another_register)
                         self[register] = [skipped_operation] + self[register]
                         print(self[register])
+                        child.mark_as_dead_end()
                         continue
             if another_register == register and register_value:
                 print("Ok", register,  register_value)
@@ -99,13 +105,14 @@ class Calculator:
                 continue
             try:
                 print("here", register)
-                self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers)
+                self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers, root_element=child)
                 # if self[register][0] == register_value:
                 print("updating", register, register_value, "with", another_register, self[another_register][0])
                 register_value = self.update_register_value(operation, register_value, self[another_register][0])
             except CalculatorException as e:
                 print("could not find", another_register)
-                return self.evaluate_register(register, self[register],register_value, seen_registers=seen_registers)
+                child.mark_as_dead_end()
+                return self.evaluate_register(register, self[register],register_value, seen_registers=seen_registers, root_element=root_element)
         print("end of")
         if register_value is None:
             raise CalculatorException(f"The value of register {register} cannot be resolved.")

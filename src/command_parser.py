@@ -25,7 +25,7 @@ class CommandParser:
     def __init__(self, calculator: Calculator):
         self.calculator = calculator
         self.allowed_operations = ["add", "subtract","multiply", "print"]
-        self.root_execution_tree = ExecutionTree("Root")
+        self.root_execution_tree = None
 
     def parse_and_validate_command(self, command):
         """Validates and parses a given command"""
@@ -56,9 +56,15 @@ class CommandParser:
                 raise CommandException("Please enter print command followed by a register.")
             try:
                 self.calculator.add_print_operation(command[1])
+                self.root_execution_tree = ExecutionTree("Root")
                 self.calculator.evaluate_stack(self.root_execution_tree)
             except CalculatorException as e:
                 raise CommandException(e.args[0])
+        elif operation == "display":
+            if self.root_execution_tree:
+                self.root_execution_tree.display()
+            else:
+                raise CommandException("No execution to show.")
         elif operation == "help":
             self._get_help()
         else:
