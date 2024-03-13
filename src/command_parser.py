@@ -4,6 +4,7 @@ import textwrap
 import logging
 import re
 
+from .ExecutionTree import ExecutionTree
 from .calculator import Calculator, CalculatorException, value_is_numeric
 
 logging.basicConfig(level=logging.INFO)
@@ -24,6 +25,7 @@ class CommandParser:
     def __init__(self, calculator: Calculator):
         self.calculator = calculator
         self.allowed_operations = ["add", "subtract","multiply", "print"]
+        self.root_execution_tree = ExecutionTree("Root")
 
     def parse_and_validate_command(self, command):
         """Validates and parses a given command"""
@@ -54,7 +56,7 @@ class CommandParser:
                 raise CommandException("Please enter print command followed by a register.")
             try:
                 self.calculator.add_print_operation(command[1])
-                self.calculator.evaluate_stack()
+                self.calculator.evaluate_stack(self.root_execution_tree)
             except CalculatorException as e:
                 raise CommandException(e.args[0])
         elif operation == "help":

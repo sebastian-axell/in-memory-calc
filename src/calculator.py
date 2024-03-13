@@ -1,6 +1,7 @@
 """A class to represent a calculator."""
 import re
 
+from .ExecutionTree import ExecutionTree
 from .operation import Operation
 
 
@@ -49,13 +50,13 @@ class Calculator:
         """Adds a print operation of the given register to the stack"""
         self.add_operation(register, "print", "0")
 
-    def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None):
+    def evaluate_register(self, register: str, list_of_operations, register_value=None, seen_registers=None, root_element: ExecutionTree=None):
         """Evaluates the given register"""
-        print(seen_registers)
         seen_registers.add(register.lower())
         print("evaluting", register)
-        [print(x) for x in list_of_operations]
+        print(seen_registers)
         for operation in list_of_operations:
+            print(operation)
             if not isinstance(operation, Operation):
                 # if the value is not an operation, it is a numeric value which defines the starting value for the
                 # subsequent evaluations
@@ -68,31 +69,38 @@ class Calculator:
             another_register = value  # if it is not numeric-> has to be another register
             if another_register not in self:
                 raise CalculatorException(f"The value of register {another_register} cannot be resolved.")
-            # if another_register in seen_registers:
-            if another_register == register or another_register in seen_registers:
+            if another_register in seen_registers:
                 print("seen_registers", seen_registers)
-                print(self[another_register][0])
-                if isinstance(self[another_register][0], (int,float)):
+                if isinstance(self[another_register][0], (int,float)): # has it been determined intermediately
                     print("should bepk")
-                    register_value = self.update_register_value(operation, register_value, self[another_register][0])
-                    continue
+                    if isinstance(self[register][0], (int,float)): # and the current register as well
+                        register_value = self.update_register_value(operation, self[register][0], self[another_register][0])
+                    else:
+                        register_value = self.update_register_value(operation, register_value, self[another_register][0])
+                    self[register] = [register_value]
+                    return
+                print("made it here")
                 if not register_value:
+                    print("and here")
                     skipped_operation = self[register].pop(0)
-                    # print(skipped_operation)
-                    # print(Operation(register, operation, another_register))
                     try:
-                        return (self.evaluate_register(register, self[register], seen_registers=seen_registers), print("switch"), self.evaluate_register(register,[Operation(register, operation, another_register)], self[register][0], seen_registers=seen_registers))
+                        self.evaluate_register(register, self[register], seen_registers=seen_registers)
+                        print("switch ->", skipped_operation)
+                        self.evaluate_register(register,[skipped_operation], self[register][0], seen_registers=seen_registers)
+                        return
                     except CalculatorException as e:
+                        seen_registers.remove(another_register)
                         self[register] = [skipped_operation] + self[register]
                         print(self[register])
                         continue
-                if another_register == register and register_value:
-                    print("Ok", register,  register_value)
-                    register_value = self.update_register_value(operation, register_value, register_value)
-                    continue
+            if another_register == register and register_value:
+                print("Ok", register,  register_value)
+                register_value = self.update_register_value(operation, register_value, register_value)
+                continue
             try:
                 print("here", register)
                 self.evaluate_register(another_register, self[another_register], seen_registers=seen_registers)
+                # if self[register][0] == register_value:
                 print("updating", register, register_value, "with", another_register, self[another_register][0])
                 register_value = self.update_register_value(operation, register_value, self[another_register][0])
             except CalculatorException as e:
@@ -115,7 +123,7 @@ class Calculator:
         }
         return operations[operation](register_value, value)
 
-    def evaluate_stack(self):
+    def evaluate_stack(self, root_element):
         """Evaluates all the operations in the stuck this far, updates the registers and resets the stack"""
         for operation in self.stack:
             if operation.operation == "print":
@@ -123,7 +131,7 @@ class Calculator:
                     register = operation.register
                     if register not in self:
                         raise CalculatorException(f"The value of register {register} cannot be resolved.")
-                    self.evaluate_register(register, self[register], seen_registers=set())
+                    self.evaluate_register(register, self[register], seen_registers=set(), root_element=root_element)
                     print(self[register][0])
                     print(self.registers)
                 except CalculatorException as e:
