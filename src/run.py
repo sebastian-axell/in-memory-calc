@@ -6,19 +6,19 @@ from .command_parser import CommandException
 from .command_parser import CommandParser
 
 def command_line_application():
-    print("""Hello and welcome to this commandline Sectra Calculator.
+    print("""Hello and welcome to this commandline calculator.
     Enter HELP for list of available commands or quit to terminate.""")
     calculator = Calculator()
     parser = CommandParser(calculator)
     while True:
-        command = input("SectraCalc> ")
+        command = input("Calc> ")
         if command.lower() == "quit":
             break
         try:
             parser.execute_command(command.split())
         except CommandException as e:
             print(e)
-    print("The Sectra Calculator has now terminated its execution. "
+    print("The calculator has now terminated its execution. "
           "Thank you and goodbye!")
 
 def file_based_application(file):

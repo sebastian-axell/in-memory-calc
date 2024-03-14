@@ -1,4 +1,4 @@
-"""Tests the Sectra calculator"""
+"""Tests the calculator"""
 
 import subprocess
 import unittest

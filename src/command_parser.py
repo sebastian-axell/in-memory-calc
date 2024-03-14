@@ -25,7 +25,7 @@ class CommandParser:
     def __init__(self, calculator: Calculator):
         self.calculator = calculator
         self.allowed_operations = ["add", "subtract","multiply", "print"]
-        self.root_execution_tree = None
+        self.root_execution_tree = ExecutionTree("Root")
 
     def parse_and_validate_command(self, command):
         """Validates and parses a given command"""
@@ -60,8 +60,27 @@ class CommandParser:
                 self.calculator.evaluate_stack(self.root_execution_tree)
             except CalculatorException as e:
                 raise CommandException(e.args[0])
+        elif operation == "show":
+            if len(command) != 2:
+                raise CommandException("Please enter show followed by a register")
+            if not valid_register_name(command[1]):
+                raise CommandException("Please enter show followed by a valid register name")
+            self.calculator.show_register(command[1])
+        elif operation == "list":
+            self.calculator.show_all_registers()
+        elif operation == "reset":
+            if len(command) != 2:
+                raise CommandException("Please enter clear followed by a register")
+            self.calculator.reset_register_value(command[1])
+        elif operation == "restart":
+            self.calculator.reset()
+        elif operation == "clear":
+            if len(command) != 2:
+                raise CommandException("Please enter clear followed by a register")
+            self.calculator.clear_register_operations(command[1])
+            print("Cleared register", command[1])
         elif operation == "display":
-            if self.root_execution_tree:
+            if len(self.root_execution_tree.children) > 0:
                 self.root_execution_tree.display()
             else:
                 raise CommandException("No execution to show.")
@@ -81,6 +100,9 @@ class CommandParser:
             print <register> - Prints the given registers value.
             show <register> - Shows added operations for a given registry
             list - Shows all the registry values or their store of operations
+            clear <register> - Removes all operations for that register
+            restart - Resets the calculator.
+            reset <register> - Removes the current evaluated value of a given register, if any
             HELP - Displays help.
             QUIT - Terminates the program execution.
         """)

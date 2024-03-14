@@ -1,4 +1,4 @@
-# Sectra Programming Assignment
+# In memory calculator with lazy evaluation
 #### By Sebastian Axell
 
 ## Overview
@@ -26,6 +26,12 @@ The following commands are implemented:
 * _register_ _subtract_ _value_ - Subtract the specified value from the given register.
 * _register_ _multiply_ _value_ - Multiplies the specified register value with the given value.
 * print _register_ - Prints the given registers value.
+* show _register_ - Shows added operations for a given registry
+* list - Shows all the registry values or their store of operations
+* clear _register_ - Removes all operations for that register
+* restart - Resets the calculator.
+* reset _register_ - Removes the current evaluated value of a given register, if any
+
 * HELP - Displays help.
 * QUIT - Terminates the program execution
 
@@ -38,9 +44,12 @@ The inputs are validated according to these rules:
 Invalid inputs are not evaluated but printed to the console.
 
 **Note:** circular referencing is enabled meaning a given register can be used
-in operation with itself like so : _a_ add _a_. If the value of _a_
-cannot be resolved an error message will be displayed. 
+in operation with itself like so : _a_ add _a_. However this is only possible if a has
+previously been determined.
 ### Assumptions
+Values are determined in a ground-up manner. Meaning it is first determined
+and then subsequent commands involving it are evaluated.
+
 If the value of a register cannot be resolved, an error message is displayed.
 However, the operations for that register is not cleared. This is in case
 the user adds the required inputs later on. If you want to clear a register of
