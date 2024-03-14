@@ -31,7 +31,7 @@ The following commands are implemented:
 * clear _register_ - Removes all operations for that register
 * restart - Resets the calculator.
 * reset _register_ - Removes the current evaluated value of a given register, if any
-
+* display - Shows the execution path as a simple tree
 * HELP - Displays help.
 * QUIT - Terminates the program execution
 

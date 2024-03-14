@@ -103,6 +103,7 @@ class CommandParser:
             clear <register> - Removes all operations for that register
             restart - Resets the calculator.
             reset <register> - Removes the current evaluated value of a given register, if any
+            display - Shows the execution path as a simple tree
             HELP - Displays help.
             QUIT - Terminates the program execution.
         """)
