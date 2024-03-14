@@ -27,7 +27,7 @@ The following commands are implemented:
 * _register_ _multiply_ _value_ - Multiplies the specified register value with the given value.
 * print _register_ - Prints the given registers value.
 * show _register_ - Shows added operations for a given registry
-* list - Shows all the registry values or their store of operations
+* list - Shows all the operations for all the registers
 * clear _register_ - Removes all operations for that register
 * restart - Resets the calculator.
 * reset _register_ - Removes the current evaluated value of a given register, if any

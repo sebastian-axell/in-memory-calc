@@ -61,31 +61,36 @@ class Calculator:
         self.stack.append(Operation(register, operation, value))
 
     def reset_register_value(self, register):
+        """Removes the evaluated value for a given register"""
         self.evaluated_registers.pop(register.lower(), None)
 
     def clear_register_operations(self, register):
+        """Clears all operations for the given register"""
         if register in self:
             self[register] = []
         else:
             self.stack = [operation for operation in self.stack if operation.register!=register.lower()]
 
     def show_register(self, register):
+        """Shows all the operations for the given register"""
         all_operations = [str(operation) for operation in self.stack if operation.register==register.lower()]
         if len(all_operations) == 0:
-            print(f"Register {register} has no operations yet.")
+            print(f"Register {register} has no operations added.")
         else:
             register_operations = [str(operation) for operation in self.stack if operation.register==register.lower()]
             print(f"Register {register} has the following operations: {', '.join(register_operations)}")
 
     def show_all_registers(self):
+        """Shows all the operations for all the registers"""
         all_registers = [operation.register for operation in self.stack]
         if len(all_registers) == 0:
-            print("No registers registered.")
+            print("No operations for any registered register.")
         else:
             for register in all_registers:
                 self.show_register(register)
 
     def reset(self):
+        """Resets the calculator"""
         self.evaluated_registers={}
         self.registers={}
         self.stack = []

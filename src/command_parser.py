@@ -99,7 +99,7 @@ class CommandParser:
         Other commands:
             print <register> - Prints the given registers value.
             show <register> - Shows added operations for a given registry
-            list - Shows all the registry values or their store of operations
+            list - Shows all the operations for all the registers
             clear <register> - Removes all operations for that register
             restart - Resets the calculator.
             reset <register> - Removes the current evaluated value of a given register, if any
