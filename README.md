@@ -1,4 +1,4 @@
-# In memory calculator with lazy evaluation
+# In-memory calculator with lazy evaluation
 #### By Sebastian Axell
 
 ## Overview
